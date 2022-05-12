@@ -1,0 +1,101 @@
+version: '3.3'
+
+services:
+  # Web Application Service Definition
+  # --------
+  #
+  # All of the information needed to start up an odoo web
+  # application container.
+  web:
+    image: odoo:15.0
+    # command: bash -c "pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && pip3 config set install.trusted-host mirrors.aliyun.com && pip3 install debugpy && python3 -m debugpy --listen 5678 /usr/bin/odoo -c /etc/odoo/odoo.conf "
+    depends_on:
+        - db
+
+    restart: "always"
+
+    # Port Mapping
+    # --------
+    #
+    # Here we are mapping a port on the host machine (on the left)
+    # to a port inside of the container (on the right.) The default
+    # port on Odoo is 8069, so Odoo is running on that port inside
+    # of the container. But we are going to access it locally on
+    # our machine from localhost:9000.
+    ports:
+      - 8069:8069
+
+    # Data Volumes
+    # --------
+    #
+    # This defines files that we are mapping from the host machine
+    # into the container.
+    #
+    # Right now, we are using it to map a configuration file into
+    # the container and any extra odoo modules.
+    volumes:
+      - ./config:/etc/odoo
+      - ./addons:/mnt/extra-addons
+
+    # Odoo Environment Variables
+    # --------
+    #
+    # The odoo image uses a few different environment
+    # variables when running to connect to the postgres
+    # database.
+    #
+    # Make sure that they are the same as the database user
+    # defined in the db container environment variables.
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+
+  # Database Container Service Definition
+  # --------
+  #
+  # All of the information needed to start up a postgresql
+  # container.
+  db:
+    image: postgres:11
+
+    # Database Environment Variables
+    # --------
+    #
+    # The postgresql image uses a few different environment
+    # variables when running to create the database. Set the
+    # username and password of the database user here.
+    #
+    # Make sure that they are the same as the database user
+    # defined in the web container environment variables.
+    environment:
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - POSTGRES_DB=postgres  # Leave this set to postgres
+
+  nginx:
+    image: nginx
+    restart: "always"
+    volumes:
+        - ./nginx:/etc/nginx/conf.d
+    ports:
+        - 8000:80
+    environment:
+        - NGINX_PORT=80
+    depends_on:
+        - web
+
+   pgadmin:
+     image: dpage/pgadmin4
+     depends_on:
+         - db
+     environment:
+       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@g.cn}
+       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+     volumes:
+        - pgadmin:/root/.pgadmin
+     ports:
+       - "${PGADMIN_PORT:-5050}:80"
+
+volumes:
+    pgadmin:
