@@ -1,21 +1,45 @@
 # odoo_docker
 
-#### 介绍
+### 介绍
 run Odoo in Docker
 
-#### 软件架构
-软件架构说明
+### 安装运行环境
+
+#### Ubuntu
+- 安装 docker 
+
+ref. https://docs.docker.com/engine/install/ubuntu/
+
+- 安装 docker compose
+
+#### MAC 
+- 安装 docker for desktop
+
+ref. https://docs.docker.com/desktop/mac/install/
+
+- 安装 docker compose
 
 
-#### 安装教程
+#### Windows 
+- 安装 docker for desktop
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+ref. https://docs.docker.com/desktop/windows/install/
 
-#### 使用说明
+- 安装 docker compose
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+
+### 运行odoo
+
+1. 克隆本仓库到本地目录，例如 `odoo-docker`
+1. 执行下面的命令运行 Odoo
+
+```bash
+
+cd odoo-docker
+docker-compose -p odoo15 up -d
+
+```
+3. docker将会拉取相关的镜像，然后运行项目
+4. 浏览器打开 http://localhost:8000
+
 
