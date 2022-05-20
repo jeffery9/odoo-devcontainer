@@ -44,18 +44,18 @@ docker-compose -p odoo15 up -d
 
 
 
-### 其他事项
+### FAQ
 
-#### 使用 Docker 镜像站点
+1. #### Docker 报错 `Get https://registry-1.docker.io/v2/: unable to connect to HTTP proxy 127.0.0.1:1080` , 此时你需要使用 Docker 镜像注册中心
  
-调整 docker 配置增加中国本地注册器镜像，
-```
-{
-  "registry-mirrors": [
-    "https://registry.docker-cn.com",
-    "https://docker.mirrors.ustc.edu.cn"
-  ]
-}
-```
+  调整 docker 配置增加中国本地注册器镜像，
+  ```
+  {
+    "registry-mirrors": [
+      "https://registry.docker-cn.com",
+      "https://docker.mirrors.ustc.edu.cn"
+    ]
+  }
+  ```
 
 
