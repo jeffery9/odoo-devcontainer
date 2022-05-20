@@ -43,3 +43,19 @@ docker-compose -p odoo15 up -d
 4. 浏览器打开 http://localhost:8000
 
 
+
+### 其他事项
+
+#### 使用 Docker 镜像站点
+ 
+调整 docker 配置增加中国本地注册器镜像，
+```
+{
+  "registry-mirrors": [
+    "https://registry.docker-cn.com",
+    "https://docker.mirrors.ustc.edu.cn"
+  ]
+}
+```
+
+
