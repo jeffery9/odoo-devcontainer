@@ -12,7 +12,7 @@ services:
     depends_on:
         - db
 
-    restart: "always"
+    restart: "no"
 
     # Port Mapping
     # --------
@@ -22,8 +22,8 @@ services:
     # port on Odoo is 8069, so Odoo is running on that port inside
     # of the container. But we are going to access it locally on
     # our machine from localhost:9000.
-    ports:
-      - 8069:8069
+    # ports:
+      # - 8069:8069
 
     # Data Volumes
     # --------
@@ -58,6 +58,7 @@ services:
   # container.
   db:
     image: postgres:11
+    restart: "no"
 
     # Database Environment Variables
     # --------
@@ -75,7 +76,7 @@ services:
 
   nginx:
     image: nginx
-    restart: "always"
+    restart: "no"
     volumes:
         - ./nginx:/etc/nginx/conf.d
     ports:
@@ -84,9 +85,11 @@ services:
         - NGINX_PORT=80
     depends_on:
         - web
+        - pgadmin
 
   pgadmin:
     image: dpage/pgadmin4
+    restart: "no"
     depends_on:
         - db
     environment:
@@ -94,8 +97,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     volumes:
       - pgadmin:/root/.pgadmin
-    ports:
-      - "${PGADMIN_PORT:-5050}:80"
+    # ports:
+    #   - "${PGADMIN_PORT:-5050}:80"
 
 volumes:
     pgadmin:
