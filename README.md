@@ -28,6 +28,13 @@ ref. https://docs.docker.com/desktop/windows/install/
 - 安装 docker compose
 
 
+ **重要说明**
+
+. 根目录下 放置 Odoo 源代码， 即 包含 `odoo-bin 的 Odoo 源代码整个目录
+
+. 非官方 Addons 存放在根目录 addons 下
+
+
 ### 运行odoo
 
 1. 克隆本仓库到本地目录，例如 `odoo-docker`
