@@ -59,8 +59,8 @@ rc-server-sdk
 xmltodict==0.11.0
 kdniao==0.1.2
 pycryptodome
-sqlalchemy==1.2.5
-celery==4.1.0
+sqlalchemy==1.3.0
+celery==5.2.0
 wechatpy
 pymongo
 captcha
