@@ -4,7 +4,24 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        {
+            "name": "Python: run Odoo",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/odoo/odoo-bin",
+            "args": ["-c","/etc/odoo/odoo.conf"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: upgrade Odoo",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/odoo/odoo-bin",
+            "args": ["-c","/etc/odoo/odoo.conf","-u","base","-d","test"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
         {
             "name": "Python: Remote Attach",
             "type": "python",
@@ -15,16 +32,10 @@
             },
             "pathMappings": [
                 {
-                    "localRoot": "${workspaceFolder}/addons",
-                    "remoteRoot": "/mnt/extra-addons"
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/workspace"
                 },
-                {
-                    "localRoot": "${workspaceFolder}/odoo",
-                    "remoteRoot": "/usr/lib/python3/dist-packages/odoo"
-                },
-
             ],
-      
             "justMyCode": false
         }
     ]

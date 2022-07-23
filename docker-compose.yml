@@ -34,8 +34,8 @@ services:
     # Right now, we are using it to map a configuration file into
     # the container and any extra odoo modules.
     volumes:
-      - ./config:/etc/odoo
-      - ./addons:/mnt/extra-addons
+      - ./docker/config:/etc/odoo
+      - .:/workspace
 
     # Odoo Environment Variables
     # --------
@@ -78,7 +78,7 @@ services:
     image: nginx
     restart: "no"
     volumes:
-        - ./nginx:/etc/nginx/conf.d
+        - ./docker/nginx:/etc/nginx/conf.d
     ports:
         - 8000:80
     environment:
