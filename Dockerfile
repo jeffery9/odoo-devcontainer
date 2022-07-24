@@ -20,7 +20,7 @@ COPY ./requirements.txt ./requirements.txt
 
 RUN set -x; \
     apt-get update \
-    && apt-get install -y build-essential git python3-dev python3-setuptools python3-wheel python3-ldap \
+    && apt-get install -y build-essential libjpeg-dev libxslt-dev libzip-dev libldap2-dev libsasl2-dev git python3-dev python3-setuptools python3-wheel python3-ldap \ 
     && pip3 install -r requirements.txt -i https://mirror.sjtu.edu.cn/pypi/web/simple/ \
     && pip3 install debugpy -i https://mirror.sjtu.edu.cn/pypi/web/simple/ \
     && rm -rf /root/.cache  /var/lib/apt/lists/*
