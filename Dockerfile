@@ -30,3 +30,5 @@ RUN set -x; \
 EXPOSE 8069 8071 5678
 
 USER odoo
+
+CMD [ "/bin/sh","-c","while sleep 1000; do :; done" ]

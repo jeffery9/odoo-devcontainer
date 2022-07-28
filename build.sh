@@ -2,7 +2,4 @@
 
 cwd=$(pwd)
 
-docker build  . -t odoo:15.1  --no-cache
-
-
-
+docker build  . -t odoo:15.1  

@@ -8,6 +8,8 @@ services:
   # application container.
   web:
     image: odoo:15.1
+    command: /bin/sh -c "while sleep 1000; do :; done"
+
     depends_on:
         - db
 
