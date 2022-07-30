@@ -17,7 +17,20 @@
 
 	// The optional 'workspaceFolder' property is the path VS Code should open by default when
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
-	"workspaceFolder": "/workspace"
+	"workspaceFolder": "/workspace",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"njpwerner.autodocstring",
+				"ms-python.vscode-pylance",
+				"ms-python.python",
+				"jigar-patel.OdooSnippets",
+				"redhat.vscode-xml",
+				"janisdd.vscode-edit-csv",
+				"redhat.vscode-yaml"
+			]
+		}
+	}
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
