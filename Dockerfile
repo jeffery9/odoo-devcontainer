@@ -4,7 +4,7 @@ MAINTAINER jeffery <jeffery9@gmail.com>
 USER root
 
 RUN set -x;\
-    usermod odoo -s /bin/sh
+    usermod odoo -s /bin/bash
 
 RUN set -x;\
  sed -i "s/deb.debian.org/mirror.sjtu.edu.cn/"  /etc/apt/sources.list  \ 
