@@ -3,8 +3,13 @@ folder struct
 
 -
 |
-__ addons    # to push your own customize addons 
+|-- addons    # to push your own customize addons 
 |
-__odoo       # to  put odoo source code 
+|-- odoo       # to  put odoo source code 
    |
-   ______ addons     # to push odoo offical addons 
+   |----- addons     # to push odoo offical addons 
+   |----- api.py
+   |----- models.py
+   |----- fields.py
+   |----- ...
+   |
