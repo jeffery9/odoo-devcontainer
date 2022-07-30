@@ -1,0 +1,10 @@
+
+folder struct 
+
+-
+|
+__ addons    # to push your own customize addons 
+|
+__odoo       # to  put odoo source code 
+   |
+   ______ addons     # to push odoo offical addons 
