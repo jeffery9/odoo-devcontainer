@@ -1,7 +1,7 @@
 # develop Odoo in docker
 
 ### 介绍
-coding debugging Odoo in Docker
+Coding Debuging Odoo in Docker
 
 ### 安装运行环境
 
