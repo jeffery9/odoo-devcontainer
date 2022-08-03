@@ -2,6 +2,7 @@ FROM odoo:15.0
 MAINTAINER jeffery <jeffery9@gmail.com>
 
 USER root
+RUN echo "root:Docker!" | chpasswd
 
 RUN set -x;\
     usermod odoo -s /bin/bash
@@ -20,7 +21,7 @@ COPY ./requirements.txt ./requirements.txt
 
 RUN set -x; \
     apt-get update \
-    && apt-get install -y build-essential libjpeg-dev libxslt-dev libzip-dev libldap2-dev libsasl2-dev git python3-dev \
+    && apt-get install -y procps build-essential libjpeg-dev libxslt-dev libzip-dev libldap2-dev libsasl2-dev git python3-dev \
             python3-setuptools \
             python3-pip \
             python3-wheel \

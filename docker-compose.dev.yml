@@ -52,6 +52,9 @@ services:
       - USER=odoo
       - PASSWORD=odoo
 
+    cap_add:
+      - SYS_PTRACE
+
   # Database Container Service Definition
   # --------
   #
