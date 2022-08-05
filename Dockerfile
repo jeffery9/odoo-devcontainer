@@ -59,7 +59,7 @@ RUN set -x; \
             python3-zeep \
             python3-num2words \
     && pip3 install -r requirements.txt -i https://mirror.sjtu.edu.cn/pypi/web/simple/ \
-    && pip3 install debugpy -i https://mirror.sjtu.edu.cn/pypi/web/simple/ \
+    && pip3 install py-spy debugpy -i https://mirror.sjtu.edu.cn/pypi/web/simple/ \
     && rm -rf /root/.cache  /var/lib/apt/lists/*
 
 
