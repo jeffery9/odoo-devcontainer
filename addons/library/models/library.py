@@ -4,6 +4,7 @@ class Library(models.Model):
     _name = 'library'
     _description = 'Library'
     
+    _inherit = 'res.partner'
 
     catalog_ids = fields.One2many('catalog', 'lib_id', string='catalog')    
 

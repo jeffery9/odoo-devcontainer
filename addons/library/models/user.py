@@ -5,6 +5,6 @@ class User(models.Model):
     _name = 'user'
     _description = 'User'
 
-    _inherit = ['res.partner']
+    _inherit = ['res.users']
 
     card_number = fields.Char('Card Number')

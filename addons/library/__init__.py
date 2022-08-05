@@ -2,13 +2,19 @@
 
 from . import controllers
 from . import models
+import logging
+
+
+_logger = logging.getLogger(__name__)
+
 
 
 def pre_init_hook(cr):
-    pass
+    _logger.info(' pre_init_hook')
 
 def post_init_hook(cr,registry):
-    pass
+    _logger.info(' post_init_hook')
+
 
 def uninstall_hook(cr,registry):
-    pass
+    _logger.info(' post_init_hook')
