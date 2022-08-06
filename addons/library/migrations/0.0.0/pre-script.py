@@ -6,4 +6,4 @@ __logger = logging.getLogger(__name__)
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
 
-    __logger.info(' >>>> pre')
+    __logger.warning(' >>>> pre')
