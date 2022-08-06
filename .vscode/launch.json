@@ -36,21 +36,29 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/odoo-bin",
-            "args": ["-c","/etc/odoo/odoo.conf","-d","test","shell"],
+            "args": ["shell", "-c","/etc/odoo/odoo.conf","-d","test"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
         {
-            "name": "Python: upgrade Odoo",
+            "name": "Python: upgrade library",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/odoo-bin",
-            "args": ["-c","/etc/odoo/odoo.conf","-u","base","-d","test","--stop-after-init"],
+            "args": ["-c","/etc/odoo/odoo.conf","-u","library","-d","test","--stop-after-init"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
 
-
+        {
+            "name": "Python: install library",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/odoo-bin",
+            "args": ["-c","/etc/odoo/odoo.conf","-i","library","-d","test","--stop-after-init"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
 
     ]
 }
