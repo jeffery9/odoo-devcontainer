@@ -32,16 +32,16 @@
             "justMyCode": true
         },
         {
-            "name": "Python: run Odoo shell",
+            "name": "Python: Odoo shell",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/odoo-bin",
             "args": ["shell", "-c","/etc/odoo/odoo.conf","-d","test"],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
         },
         {
-            "name": "Python: upgrade library",
+            "name": "Python: upgrade app",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/odoo-bin",
@@ -51,7 +51,7 @@
         },
 
         {
-            "name": "Python: install library",
+            "name": "Python: install app",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/odoo-bin",
