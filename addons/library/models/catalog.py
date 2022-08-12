@@ -9,13 +9,16 @@ class Catalog(models.Model):
 
     name = fields.Char('name')
 
-    child_id = fields.One2many('open.library.catalog',
-                               'parent_id',
-                               string='Child IDs')
     parent_id = fields.Many2one('open.library.catalog',
                                 string='Parent Catalog',
                                 index=True,
                                 ondelete="restrict")
+
+    child_id = fields.One2many('open.library.catalog',
+                               'parent_id',
+                               string='Child IDs')
+
+    parent_path = fields.Char('parent path')
 
     lib_id = fields.Many2one('open.library.library', string='library')
 

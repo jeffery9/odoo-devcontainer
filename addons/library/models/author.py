@@ -11,6 +11,7 @@ class Author(models.Model):
                                  string='partner',
                                  required=True,
                                  ondelete="restrict")
+                                 
     book_ids = fields.Many2many('open.library.book',
                                 relation='author_book_rel',
                                 column1='author_id',

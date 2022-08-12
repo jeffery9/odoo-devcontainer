@@ -16,3 +16,11 @@ class Book(models.Model):
                                   column1='book_id',
                                   column2='author_id',
                                   string='author')
+
+    name = fields.Char('name')
+    isbn = fields.Char('isbn')
+    summary = fields.Html('summary')
+    cover = fields.Image('cover', max_width=1024, max_height=1204)
+    price = fields.Float('price')
+    publish_date = fields.Date('Publish Date')
+    publisher_id = fields.Many2one('open.library.publisher', string='publiser')

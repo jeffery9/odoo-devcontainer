@@ -13,3 +13,10 @@ class Member(models.Model):
                               ondelete="restrict")
 
     lib_id = fields.Many2one('open.library.library', string='library')
+
+    book_item_ids = fields.Many2many('open.library.book.item',
+                                     string='Book Item',
+                                     related='book_lending_ids.book_item_id')
+
+    book_lending_ids = fields.Many2many('open.library.book.lending',
+                                        string='Book Lending')

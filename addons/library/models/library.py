@@ -12,9 +12,9 @@ class Library(models.Model):
                                  required=True,
                                  ondelete="restrict")
 
-    catalog_ids = fields.One2many('open.library.catalog',
-                                  'lib_id',
-                                  string='catalog')
+    book_item_ids = fields.One2many('open.library.book.item',
+                                    'lib_id',
+                                    string='book item')
 
     member_ids = fields.One2many('open.library.member',
                                  'lib_id',
@@ -23,3 +23,7 @@ class Library(models.Model):
     librarian_ids = fields.One2many('open.library.librarian',
                                     'lib_id',
                                     string='librarian')
+
+    book_ids = fields.Many2many('open.library.book', string='book')
+
+    catalog_ids = fields.Many2many('open.library.catalog', string='catalog')

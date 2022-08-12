@@ -4,6 +4,7 @@ from . import user
 from . import library
 from . import catalog
 from . import author
+from . import publisher
 from . import book
 from . import bookitem
 from . import booklending
