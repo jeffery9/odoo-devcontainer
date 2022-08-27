@@ -21,13 +21,13 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"njpwerner.autodocstring",
 				"ms-python.vscode-pylance",
 				"ms-python.python",
 				"jigar-patel.OdooSnippets",
 				"redhat.vscode-xml",
+				"redhat.vscode-yaml",
 				"janisdd.vscode-edit-csv",
-				"redhat.vscode-yaml"
+				"njpwerner.autodocstring"
 			]
 		}
 	}
