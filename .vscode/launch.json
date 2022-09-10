@@ -20,8 +20,6 @@
             ],
             "justMyCode": true
         },
-
-
         {
             "name": "Python: run Odoo",
             "type": "python",
@@ -29,7 +27,16 @@
             "program": "${workspaceFolder}/odoo-bin",
             "args": ["-c","/etc/odoo/odoo.conf"],
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
+        },
+        {
+            "name": "Python: load translations",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/odoo-bin",
+            "args": ["-c","/etc/odoo/odoo.conf","--load-language","zh_CN","-d","test","--stop-after-init"],
+            "console": "integratedTerminal",
+            "justMyCode": false
         },
         {
             "name": "Python: Odoo shell",
@@ -45,11 +52,19 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/odoo-bin",
-            "args": ["-c","/etc/odoo/odoo.conf","-u","library","-d","test","--stop-after-init"],
+            "args": ["-c","/etc/odoo/odoo.conf","-u","base","-d","test","--stop-after-init"],
             "console": "integratedTerminal",
             "justMyCode": true
         },
-
+        {
+            "name": "Python: install all apps",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/odoo-bin",
+            "args": ["-c","/etc/odoo/odoo.conf","-i","sale_stock,sale_mrp","-d","test","--stop-after-init"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
         {
             "name": "Python: install app",
             "type": "python",
@@ -59,6 +74,5 @@
             "console": "integratedTerminal",
             "justMyCode": true
         },
-
     ]
 }

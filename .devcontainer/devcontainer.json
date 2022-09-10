@@ -27,7 +27,8 @@
 				"redhat.vscode-xml",
 				"redhat.vscode-yaml",
 				"janisdd.vscode-edit-csv",
-				"njpwerner.autodocstring"
+				"njpwerner.autodocstring",
+				"mrorz.language-gettext"
 			]
 		}
 	}
