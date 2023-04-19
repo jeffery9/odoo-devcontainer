@@ -9,10 +9,13 @@
       "type": "python",
       "request": "launch",
       "program": "odoo-bin",
+      "args": ["-c", "config/odoo.conf"],
       "console": "integratedTerminal",
-      "justMyCode": true
-    },
+      "justMyCode": true,
+      // "gevent": true,
+      "cwd": "${workspaceFolder}"
 
+    },
     {
       "name": "Python: Remote Attach",
       "type": "python",
@@ -27,7 +30,7 @@
           "remoteRoot": "/mnt/extra-addons"
         },
         {
-          "localRoot": "${workspaceFolder}/odoo",
+          "localRoot": "${workspaceFolder}/odoo16",
           "remoteRoot": "/usr/lib/python3/dist-packages/odoo"
         }
       ],

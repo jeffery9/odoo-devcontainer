@@ -7,7 +7,7 @@ services:
   # All of the information needed to start up an odoo web
   # application container.
   web:
-    image: odoo:15.0
+    image: odoo:16.0
     # command: bash -c "pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/ && pip3 config set install.trusted-host mirrors.aliyun.com && pip3 install debugpy && python3 -m debugpy --listen 5678 /usr/bin/odoo -c /etc/odoo/odoo.conf "
     depends_on:
         - db

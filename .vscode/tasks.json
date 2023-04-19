@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "debugpy Odoo",
+            "label": "run Odoo",
             "type": "shell",
-            "command": "pip3 install debugpy && python3 -m debugpy --listen 5678 odoo-bin -c config/odoo.conf --workers=0",
+            "command": "odoo -c /etc/odoo/odoo.conf",
         }
     ]
 }
