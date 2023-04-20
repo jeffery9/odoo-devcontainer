@@ -6,7 +6,7 @@
         {
             "label": "run Odoo",
             "type": "shell",
-            "command": "odoo -c /etc/odoo/odoo.conf",
+            "command": "odoo -c odoo.conf",
         }
     ]
 }

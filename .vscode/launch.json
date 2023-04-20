@@ -9,11 +9,12 @@
       "type": "python",
       "request": "launch",
       "program": "odoo-bin",
-      "args": ["-c", "config/odoo.conf"],
+      "args": ["-c", "odoo.conf"],
       "console": "integratedTerminal",
-      "justMyCode": true,
+      "justMyCode": false,
       // "gevent": true,
-      "cwd": "${workspaceFolder}"
+      "subProcess": true,
+      "cwd": "${workspaceFolder}",
 
     },
     {
