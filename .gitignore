@@ -27,3 +27,4 @@ Temporary Items
 .apdisk
 addons/*
 odoo/*
+docker/odoo16/*
