@@ -11,31 +11,23 @@
       "program": "odoo-bin",
       "args": ["-c", "odoo.conf"],
       "console": "integratedTerminal",
-      "justMyCode": false,
       // "gevent": true,
-      "subProcess": true,
+      // "subProcess": true,
       "cwd": "${workspaceFolder}",
 
-    },
-    {
-      "name": "Python: Remote Attach",
-      "type": "python",
-      "request": "attach",
-      "connect": {
-        "host": "localhost",
-        "port": 5678
-      },
       "pathMappings": [
         {
           "localRoot": "${workspaceFolder}/addons",
           "remoteRoot": "/mnt/extra-addons"
         },
         {
-          "localRoot": "${workspaceFolder}/odoo16",
+          "localRoot": "${workspaceFolder}/docker/odoo16/odoo",
           "remoteRoot": "/usr/lib/python3/dist-packages/odoo"
         }
       ],
       "justMyCode": false
-    }
+
+    },
+    
   ]
 }
