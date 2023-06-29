@@ -1,6 +1,7 @@
 FROM odoo:16.0
 MAINTAINER Odoo S.A. <info@odoo.com>
- 
+USER root
+
 RUN set -x;\
  sed -i "s/deb.debian.org/mirrors.aliyun.com/"  /etc/apt/sources.list && \ 
  sed -i "s/security.debian.org/mirrors.aliyun.com/"  /etc/apt/sources.list 
