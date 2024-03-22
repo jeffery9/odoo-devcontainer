@@ -21,7 +21,7 @@
           "remoteRoot": "/mnt/extra-addons"
         },
         {
-          "localRoot": "${workspaceFolder}/docker/odoo16/odoo",
+          "localRoot": "${workspaceFolder}/docker/odoo17/odoo",
           "remoteRoot": "/usr/lib/python3/dist-packages/odoo"
         }
       ],

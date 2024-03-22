@@ -1,4 +1,4 @@
-FROM odoo:16.0
+FROM odoo:17.0
 USER root
 
 RUN set -x;\
