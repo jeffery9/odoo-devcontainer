@@ -36,7 +36,8 @@ ref. https://docs.docker.com/desktop/windows/install/
 ```bash
 
 cd odoo-docker
-docker-compose up -d
+bash download.sh
+docker-compose up --build -d
 
 ```
 3. docker将会拉取相关的镜像，然后运行项目
