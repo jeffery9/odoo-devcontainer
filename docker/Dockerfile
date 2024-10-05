@@ -2,16 +2,17 @@ FROM odoo:17.0
 USER root
 
 RUN set -x;\
- sed -i "s/deb.debian.org/mirrors.aliyun.com/"  /etc/apt/sources.list && \ 
- sed -i "s/security.debian.org/mirrors.aliyun.com/"  /etc/apt/sources.list 
+ sed -i "s/deb.ubuntu.com/mirrors.aliyun.com/"  /etc/apt/sources.list && \ 
+ sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/"  /etc/apt/sources.list && \ 
+ sed -i "s/security.ubuntu.com/mirrors.aliyun.com/"  /etc/apt/sources.list 
 
 RUN set -x; \
         apt-get update \
-        && apt-get install -y procps sudo git git-lfs 
+        && apt-get install -y procps sudo git git-lfs \
         && rm -rf /var/lib/apt/lists/*
 
 # override odoo source codes
-# COPY odoo16/odoo  /usr/lib/python3/dist-packages/odoo
+# COPY odoo17/odoo  /usr/lib/python3/dist-packages/odoo
 
 RUN set -x; \
         pip3 install -i https://mirrors.aliyun.com/pypi/simple  --upgrade pip 
