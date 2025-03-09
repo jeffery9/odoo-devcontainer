@@ -1,0 +1,11 @@
+../../bin/ruff,sha256=8OBpVdr-rE4Jw8m9OMyMqLpbEBsLUqsf8tQjHfstwrw,30605264
+ruff-0.9.9.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ruff-0.9.9.dist-info/METADATA,sha256=9fSZ0cYuDEuG41_orqUkDdVZd-4kXw_r1D5tYn9PlJY,25733
+ruff-0.9.9.dist-info/RECORD,,
+ruff-0.9.9.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+ruff-0.9.9.dist-info/WHEEL,sha256=Q_zljgu5tGcLbPh-dfsDVwp_2WVs5i6lfGI3uWBBj6k,126
+ruff-0.9.9.dist-info/licenses/LICENSE,sha256=MgnAt_tyV8BbFkM3KMHpdLrEAAD-8XG46eifCVYjyVQ,69789
+ruff/__init__.py,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+ruff/__main__.py,sha256=EL9zQrK6OoDEC2ITjWg6VeyDXD3LC5OTzXpY_ooV_WU,2921
+ruff/__pycache__/__init__.cpython-313.pyc,,
+ruff/__pycache__/__main__.cpython-313.pyc,,

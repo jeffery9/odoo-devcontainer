@@ -1,0 +1,6 @@
+2025-03-09 14:06:39.502 [info] [main] Log level: Info
+2025-03-09 14:06:39.503 [info] [main] Validating found git in: "/Library/Developer/CommandLineTools/usr/bin/git"
+2025-03-09 14:06:39.503 [info] Unable to find git on the PATH: "/Library/Developer/CommandLineTools/usr/bin/git". Error: spawn /Library/Developer/CommandLineTools/usr/bin/git ENOENT
+2025-03-09 14:06:39.503 [info] [main] Validating found git in: "git"
+2025-03-09 14:06:39.503 [warning] Unable to find git. Error: spawn git ENOENT
+2025-03-09 14:06:39.503 [warning] [main] Failed to create model: Error: Git installation not found.

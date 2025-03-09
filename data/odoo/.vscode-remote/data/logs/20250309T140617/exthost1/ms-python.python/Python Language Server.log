@@ -1,0 +1,3 @@
+2025-03-09 14:07:48.034 [info] [Info  - 2:07:48 PM] (1039) Server root directory: file:///var/lib/odoo/.vscode-remote/extensions/ms-python.vscode-pylance-2025.3.1/dist
+2025-03-09 14:07:48.035 [info] [Info  - 2:07:48 PM] (1039) Pylance language server 2025.3.1 (pyright version 1.1.396, commit 3e2236a7) starting
+2025-03-09 14:07:48.035 [info] [Info  - 2:07:48 PM] (1039) Starting service instance "odoo-devcontainer"

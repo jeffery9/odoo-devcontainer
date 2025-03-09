@@ -1,0 +1,48 @@
+2025-03-09 14:06:37.134 [info] Extension host with pid 583 started
+2025-03-09 14:06:37.162 [info] Lock '/var/lib/odoo/.vscode-remote/data/User/workspaceStorage/86d7793a630180fdbf9cb327acf4b255/vscode.lock': Lock acquired.
+2025-03-09 14:06:37.947 [info] ExtensionService#_doActivateExtension vscode.tunnel-forwarding, startup: false, activationEvent: 'onTunnel'
+2025-03-09 14:06:37.948 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2025-03-09 14:06:38.349 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: true, activationEvent: '*', root cause: vscode.git
+2025-03-09 14:06:38.657 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2025-03-09 14:06:38.658 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2025-03-09 14:06:39.105 [info] ExtensionService#_doActivateExtension vscode.configuration-editing, startup: false, activationEvent: 'onLanguage:jsonc'
+2025-03-09 14:06:39.106 [info] ExtensionService#_doActivateExtension vscode.json-language-features, startup: false, activationEvent: 'onLanguage:jsonc'
+2025-03-09 14:06:39.106 [info] ExtensionService#_doActivateExtension vscode.typescript-language-features, startup: false, activationEvent: 'onLanguage:jsonc'
+2025-03-09 14:06:39.936 [info] Eager extensions activated
+2025-03-09 14:06:39.937 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-03-09 14:06:39.937 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-03-09 14:06:40.499 [info] ExtensionService#_doActivateExtension GitHub.vscode-pull-request-github, startup: false, activationEvent: 'onStartupFinished'
+2025-03-09 14:06:41.112 [error] Error: Failed to establish a socket connection to proxies: PROXY 127.0.0.1:1087
+	at PacProxyAgent.<anonymous> (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/node_modules/@vscode/proxy-agent/out/agent.js:120:19)
+	at Generator.throw (<anonymous>)
+	at rejected (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/node_modules/@vscode/proxy-agent/out/agent.js:6:65)
+	at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-09 14:06:41.910 [error] Error: Failed to establish a socket connection to proxies: PROXY 127.0.0.1:1087
+	at PacProxyAgent.<anonymous> (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/node_modules/@vscode/proxy-agent/out/agent.js:120:19)
+	at Generator.throw (<anonymous>)
+	at rejected (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/node_modules/@vscode/proxy-agent/out/agent.js:6:65)
+	at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-09 14:06:43.059 [error] Error: Failed to establish a socket connection to proxies: PROXY 127.0.0.1:1087
+	at PacProxyAgent.<anonymous> (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/node_modules/@vscode/proxy-agent/out/agent.js:120:19)
+	at Generator.throw (<anonymous>)
+	at rejected (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/node_modules/@vscode/proxy-agent/out/agent.js:6:65)
+	at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2025-03-09 14:06:43.836 [error] HttpError: request to https://api.github.com/user failed, reason: Failed to establish a socket connection to proxies: PROXY 127.0.0.1:1087
+	at /var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2188:6563
+	at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+	at async kg.execute (/var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2135:18777)
+2025-03-09 14:06:44.523 [error] Error: Git model not found
+	at s.getAPI (/vscode/bin/linux-x64/6609ac3d66f4eade5cf376d1cb76f13985724bcb/extensions/git/dist/main.js:2:805076)
+	at new _d (/var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2190:26346)
+	at _d.createProvider (/var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2190:26938)
+	at async gw (/var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2190:32572)
+	at async kf (/var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2526:6481)
+	at async G4 (/var/lib/odoo/.vscode-remote/extensions/github.vscode-pull-request-github-0.106.0/dist/extension.js:2526:7586)
+2025-03-09 14:07:41.895 [info] ExtensionService#_doActivateExtension vscode.debug-server-ready, startup: false, activationEvent: 'onDebugResolve'
+2025-03-09 14:07:41.896 [info] ExtensionService#_doActivateExtension ms-python.python, startup: false, activationEvent: 'onDebugResolve:python'
+2025-03-09 14:07:43.663 [info] ExtensionService#_doActivateExtension ms-python.vscode-pylance, startup: false, activationEvent: 'api', root cause: ms-python.python
+2025-03-09 14:07:44.957 [info] ExtensionService#_doActivateExtension ms-python.debugpy, startup: false, activationEvent: 'api', root cause: ms-python.python
+2025-03-09 14:09:32.380 [info] ExtensionService#_doActivateExtension vscode.npm, startup: false, activationEvent: 'onTerminalQuickFixRequest:ms-vscode.npm-command'
+2025-03-09 14:09:39.673 [info] ExtensionService#_doActivateExtension vscode.extension-editing, startup: false, activationEvent: 'onLanguage:json'
+2025-03-09 14:10:33.191 [info] Extension host terminating: received terminate message from renderer
+2025-03-09 14:10:33.195 [info] Lock '/var/lib/odoo/.vscode-remote/data/User/workspaceStorage/86d7793a630180fdbf9cb327acf4b255/vscode.lock': Marking the lockfile as scheduled to be released in 6000 ms.

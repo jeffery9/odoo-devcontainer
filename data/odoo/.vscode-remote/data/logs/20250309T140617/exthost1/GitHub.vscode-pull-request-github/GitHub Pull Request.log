@@ -1,0 +1,5 @@
+2025-03-09 14:06:41.061 [warning] /var/lib/odoo/.ssh/config: ENOENT: no such file or directory, open '/var/lib/odoo/.ssh/config'
+2025-03-09 14:06:41.061 [info] [Activation] Extension version: 0.106.0
+2025-03-09 14:06:43.522 [info] [Activation] Looking for git repository
+2025-03-09 14:06:43.522 [info] [Activation] Found 0 repositories during activation
+2025-03-09 14:06:43.522 [info] [Activation] Git repository found, initializing review manager and pr tree view.

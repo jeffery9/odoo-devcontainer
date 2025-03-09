@@ -1,0 +1,11 @@
+2025-03-09 14:07:42.686 [info] Experiment 'pythonRecommendTensorboardExt' is active
+2025-03-09 14:07:42.686 [info] Experiment 'pythonTerminalEnvVarActivation' is active
+2025-03-09 14:07:42.686 [info] Experiment 'pythonTestAdapter' is active
+2025-03-09 14:07:42.686 [warning] Dir "/workspaces/odoo-devcontainer/.pixi/envs" is not watchable (directory does not exist)
+2025-03-09 14:07:42.778 [info] Python interpreter path: /usr/bin/python3
+2025-03-09 14:07:43.237 [info] > pyenv which python
+2025-03-09 14:07:43.237 [info] cwd: .
+2025-03-09 14:07:46.552 [info] DAP Server launched with command: /usr/bin/python3 /var/lib/odoo/.vscode-remote/extensions/ms-python.debugpy-2025.4.0-linux-x64/bundled/libs/debugpy/adapter
+2025-03-09 14:07:48.050 [info] Starting Pylance language server.
+2025-03-09 14:07:50.140 [info] Send text to terminal:  /usr/bin/env /usr/bin/python3 /var/lib/odoo/.vscode-remote/extensions/ms-python.debugpy-2025.4.0-linux-x64/bundled/libs/debugpy/adapter/../../debugpy/launcher 37031 -- odoo-bin -c odoo.conf 
+2025-03-09 14:08:07.680 [info] Discover tests for workspace name: undefined - uri: /var/lib/odoo/.vscode-remote/data/Machine/settings.json
