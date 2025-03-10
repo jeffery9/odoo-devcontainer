@@ -1,4 +1,4 @@
-FROM odoo:17.0
+FROM odoo:18.0
 USER root
 
 RUN set -x;\
@@ -12,7 +12,7 @@ RUN set -x; \
         && rm -rf /var/lib/apt/lists/*
 
 # override odoo source codes
-COPY odoo18/odoo  /usr/lib/python3/dist-packages/odoo
+# COPY odoo18/odoo  /usr/lib/python3/dist-packages/odoo
 
 RUN set -x; \
         pip3 install -i https://mirrors.aliyun.com/pypi/simple  --upgrade pip 

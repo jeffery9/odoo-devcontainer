@@ -7,8 +7,8 @@ services:
   # All of the information needed to start up an odoo web
   # application container.
   web:
-    image: odoo:18.1
-    build: ./docker
+    image: odoo:18.0
+    # build: ./docker
 
     depends_on:
         - db
@@ -37,6 +37,7 @@ services:
     volumes:
       - ./config:/etc/odoo
       - ./addons:/mnt/extra-addons
+      - odoo:/var/lib/odoo
 
     # Odoo Environment Variables
     # --------
@@ -58,8 +59,11 @@ services:
   # All of the information needed to start up a postgresql
   # container.
   db:
-    image: postgres:11
+    image: postgres:14
     restart: "no"
+
+    volumes:
+      - postgresql:/var/lib/postgresql/data
 
     # Database Environment Variables
     # --------
@@ -103,3 +107,5 @@ services:
 
 volumes:
     pgadmin:
+    postgresql:
+    odoo:

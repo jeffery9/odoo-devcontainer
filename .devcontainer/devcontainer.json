@@ -31,7 +31,13 @@
 	// "features": {},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	,
+	"forwardPorts": [
+		8000
+	],
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {}
+	}
 
 	// Uncomment the next line if you want start specific services in your Docker Compose config.
 	// "runServices": [],
