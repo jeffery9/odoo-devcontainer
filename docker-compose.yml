@@ -37,7 +37,7 @@ services:
     volumes:
       - ./config:/etc/odoo
       - ./addons:/mnt/extra-addons
-      - odoo:/var/lib/odoo
+      - ./data/odoo:/var/lib/odoo
 
     # Odoo Environment Variables
     # --------
@@ -62,7 +62,7 @@ services:
     image: postgres:14
     restart: "no"
     volumes:
-      - postgresql:/var/lib/postgresql
+      - ./data/postgresql:/var/lib/postgresql/data
 
     # Database Environment Variables
     # --------

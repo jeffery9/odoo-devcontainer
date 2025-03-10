@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Python: odoo-bin",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "odoo-bin",
       "args": ["-c", "odoo.conf"],
