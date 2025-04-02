@@ -1,0 +1,8 @@
+odoo:
+  docker_compose_path: docker-compose.yml
+  odoo_service_name: web
+  odoo_module_path: addons/myaddons
+  odoo_test_module: base
+
+mcp:
+  mcp_server_port: 8080
