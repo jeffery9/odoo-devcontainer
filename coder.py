@@ -170,9 +170,30 @@ def analyze_existing_features(state):
     Current Feature Analysis: {feature_analysis}
 
     Instructions:
-    - Identify all models, views, and business logic in the system.
-    - Update the feature analysis with any missing or new information.
-    - Return the updated feature analysis as a dictionary.
+    - Identify all models in the system.
+    - For each model, extract the following information:
+      - Fields: List all fields (e.g., name, price, image).
+      - Related Models: List related models (e.g., Many2one, One2many relationships).
+      - Business Rules: Describe any constraints or validation rules (e.g., price must be positive).
+      - Business Logic: Explain the functionality (e.g., sorting products by price).
+    - Organize the analysis result by model and include business rules and logic.
+    - Return the updated feature analysis as a dictionary with the following structure:
+      {{
+        "models": {{
+          "model_name_1": {{
+            "fields": [list of fields],
+            "related_models": [list of related models],
+            "business_rules": [list of business rules],
+            "business_logic": [description of business logic]
+          }},
+          "model_name_2": {{
+            "fields": [list of fields],
+            "related_models": [list of related models],
+            "business_rules": [list of business rules],
+            "business_logic": [description of business logic]
+          }}
+        }}
+      }}
     """
     result = call_qwen(prompt)
 
@@ -180,7 +201,7 @@ def analyze_existing_features(state):
     with open(analysis_file, "w") as file:
         json.dump(result, file, indent=4)
 
-    return {"feature_analysis": result}
+    return {"feature_analysis": result["models"]}
 
 graph.add_node("AnalyzeExistingFeatures", analyze_existing_features)
 
@@ -190,7 +211,7 @@ def join_environment_preparation(state):
     return {
         "compose_directory": state["GenerateOrUpdateDockerComposeFiles"]["compose_directory"],
         "environment_status": state["StartOrUpdateTestEnvironment"]["environment_status"],
-        "feature_analysis": state["AnalyzeExistingFeatures"]["feature_analysis"]
+        "feature_analysis": state["AnalyzeExistingFeatures"]
     }
 
 graph.add_node("JoinEnvironmentPreparation", join_environment_preparation)
@@ -200,6 +221,13 @@ def parse_requirements(state):
     user_story = state["user_story"]
     acceptance_criteria = state["acceptance_criteria"]
     feature_analysis = state["feature_analysis"]
+
+    # 根据新需求筛选相关的模型、业务规则和业务逻辑
+    relevant_analysis = {}
+    for model, details in feature_analysis.items():
+        # 如果模型名称出现在用户故事中，则认为该模型与需求相关
+        if model.lower() in user_story.lower():
+            relevant_analysis[model] = details
 
     # 使用 Odoo Framework, Odoo App, and Business Flow 提示词解析需求
     prompt = f"""
@@ -211,8 +239,8 @@ def parse_requirements(state):
     ### Acceptance Criteria:
     {acceptance_criteria}
 
-    ### Existing Feature Analysis:
-    {feature_analysis}
+    ### Relevant Feature Analysis:
+    {relevant_analysis}
 
     ### Instructions:
 
@@ -221,6 +249,7 @@ def parse_requirements(state):
     - Extract the following information:
       - Models: List all models (e.g., Product, Order) and their fields (e.g., name, price, image).
       - Views: Describe the UI components (e.g., form view, tree view).
+      - Business Rules: Include any constraints or validation rules.
       - Business Logic: Explain the functionality (e.g., sorting products by price).
 
     #### Step 2: Convert Acceptance Criteria into BDD Test Cases
@@ -236,6 +265,7 @@ def parse_requirements(state):
         "requirements": {{
           "models": [list of models and fields],
           "views": [list of views and their descriptions],
+          "business_rules": [list of business rules],
           "business_logic": [description of business logic]
         }},
         "bdd_test_cases": {{
@@ -300,12 +330,13 @@ def generate_business_code(state):
     Requirements:
     - Models: {requirements["models"]}
     - Views: {requirements["views"]}
+    - Business Rules: {requirements["business_rules"]}
     - Business Logic: {requirements["business_logic"]}
 
     Instructions:
     - Generate Python code for models.
     - Design XML views.
-    - Add business logic.
+    - Implement business rules and logic.
     - Ensure the code satisfies the requirements.
 
     Output:
