@@ -165,7 +165,7 @@ def analyze_existing_features(state):
 
     # 调用 LLM 分析现有功能
     prompt = f"""
-    You are an AI agent following the ReAct framework. Your task is to analyze the existing features of the system.
+    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the existing features of the system.
 
     Current Feature Analysis: {feature_analysis}
 
@@ -201,9 +201,9 @@ def parse_requirements(state):
     acceptance_criteria = state["acceptance_criteria"]
     feature_analysis = state["feature_analysis"]
 
-    # 使用 ReAct 风格提示词解析需求
+    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词解析需求
     prompt = f"""
-    You are an AI agent following the ReAct framework. Your task is to analyze the user story and acceptance criteria.
+    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the user story and acceptance criteria.
 
     ### User Story:
     {user_story}
@@ -254,31 +254,48 @@ def parse_requirements(state):
 
 graph.add_node("ParseRequirements", parse_requirements)
 
-# Step 7: 生成测试用例并保存
-def generate_and_save_bdd_tests(state):
+# Step 7: 根据 BDD 测试用例生成测试代码
+def generate_test_code(state):
     bdd_test_cases = state["bdd_test_cases"]
     compose_directory = state["compose_directory"]
 
-    # 将生成的 BDD 测试用例保存到 tests 目录
+    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词生成测试代码
+    prompt = f"""
+    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate test code based on the given BDD test cases.
+
+    BDD Test Cases:
+    {bdd_test_cases}
+
+    Instructions:
+    - Write Python test code using the Odoo testing framework.
+    - Ensure the test code covers all scenarios described in the BDD test cases.
+
+    Output:
+    - Return the generated test code as a dictionary with filenames as keys and code as values.
+    """
+    result = call_qwen(prompt)
+
+    # 将生成的测试代码保存到 tests 目录
     tests_dir = os.path.join(compose_directory, "tests")
     os.makedirs(tests_dir, exist_ok=True)
 
-    for filename, content in bdd_test_cases.items():
+    for filename, content in result.items():
         file_path = os.path.join(tests_dir, filename)
         with open(file_path, "w") as file:
             file.write(content)
 
-    return {"bdd_tests_saved": True}
+    return {"test_code_generated": True}
 
-graph.add_node("GenerateAndSaveBDDTests", generate_and_save_bdd_tests)
+graph.add_node("GenerateTestCode", generate_test_code)
 
-# Step 8: 根据测试用例生成代码
-def generate_code_from_tests(state):
+# Step 8: 根据需求分析生成业务代码
+def generate_business_code(state):
     requirements = state["requirements"]
+    compose_directory = state["compose_directory"]
 
-    # 使用 ReAct 风格提示词生成代码
+    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词生成业务代码
     prompt = f"""
-    You are an AI agent following the ReAct framework. Your task is to generate code based on the given requirements and BDD test cases.
+    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate business code based on the given requirements.
 
     Requirements:
     - Models: {requirements["models"]}
@@ -289,64 +306,55 @@ def generate_code_from_tests(state):
     - Generate Python code for models.
     - Design XML views.
     - Add business logic.
-    - Ensure the code satisfies the BDD test cases.
+    - Ensure the code satisfies the requirements.
 
     Output:
-    - Return the generated code as a dictionary with filenames as keys and code as values.
+    - Return the generated business code as a dictionary with filenames as keys and code as values.
     """
     result = call_qwen(prompt)
 
-    return {"generated_code": result}
-
-graph.add_node("GenerateCodeFromTests", generate_code_from_tests)
-
-# Step 9: 保存生成的代码
-def save_generated_code(state):
-    generated_code = state["generated_code"]
-    compose_directory = state["compose_directory"]
-
-    # 将生成的代码保存到 addons 目录
+    # 将生成的业务代码保存到 addons 目录
     addons_dir = os.path.join(compose_directory, "addons")
     os.makedirs(addons_dir, exist_ok=True)
 
-    for filename, content in generated_code.items():
+    for filename, content in result.items():
         file_path = os.path.join(addons_dir, filename)
         with open(file_path, "w") as file:
             file.write(content)
 
-    return {"code_saved": True}
+    return {"business_code_generated": True}
 
-graph.add_node("SaveGeneratedCode", save_generated_code)
+graph.add_node("GenerateBusinessCode", generate_business_code)
 
-# Step 10: 运行 BDD 测试用例
-def run_bdd_tests(state):
+# Step 9: 运行测试代码
+def run_tests(state):
     compose_directory = state["compose_directory"]
 
     try:
-        print("Running BDD tests...")
+        print("Running tests...")
         # 进入 Docker Compose 环境并运行测试
         result = subprocess.run(
-            ["docker-compose", "exec", "web", "behave", "/mnt/tests"],
+            ["docker-compose", "exec", "web", "pytest", "/mnt/tests"],
             cwd=compose_directory,
             capture_output=True,
             text=True
         )
         if result.returncode == 0:
-            return {"test_results": "All BDD tests passed!"}
+            return {"test_results": "All tests passed!"}
         else:
-            return {"test_results": "Some BDD tests failed.", "error": result.stderr}
+            return {"test_results": "Some tests failed.", "error": result.stderr}
     except subprocess.CalledProcessError as e:
-        return {"test_results": "Some BDD tests failed.", "error": str(e)}
+        return {"test_results": "Some tests failed.", "error": str(e)}
 
-graph.add_node("RunBDDTests", run_bdd_tests)
+graph.add_node("RunTests", run_tests)
 
-# Step 11: 修复代码
+# Step 10: 修复代码
 def fix_code(state):
     error_log = state["test_results"]["error"]
 
-    # 使用 ReAct 风格提示词修复代码
+    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词修复代码
     prompt = f"""
-    You are an AI agent following the ReAct framework. Your task is to analyze the error log and suggest fixes.
+    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the error log and suggest fixes.
 
     Error Log: {error_log}
 
@@ -361,7 +369,7 @@ def fix_code(state):
 
 graph.add_node("FixCode", fix_code)
 
-# Step 12: 重启容器以加载新代码
+# Step 11: 重启容器以加载新代码
 def restart_containers(state):
     compose_directory = state["compose_directory"]
 
@@ -386,17 +394,17 @@ graph.add_edge("AnalyzeExistingFeatures", "JoinEnvironmentPreparation")
 
 # 继续后续流程
 graph.add_edge("JoinEnvironmentPreparation", "ParseRequirements")
-graph.add_edge("ParseRequirements", "GenerateAndSaveBDDTests")
-graph.add_edge("GenerateAndSaveBDDTests", "GenerateCodeFromTests")
-graph.add_edge("GenerateCodeFromTests", "SaveGeneratedCode")
-graph.add_edge("SaveGeneratedCode", "RunBDDTests")
+graph.add_edge("ParseRequirements", "GenerateTestCode")
+graph.add_edge("ParseRequirements", "GenerateBusinessCode")
+graph.add_edge("GenerateTestCode", "RunTests")
+graph.add_edge("GenerateBusinessCode", "RunTests")
 
 # 如果测试失败，进入修复节点
 graph.add_conditional_edge(
-    "RunBDDTests",
+    "RunTests",
     lambda state: "FixCode" if "error" in state["test_results"] else "RestartContainers"
 )
-graph.add_edge("FixCode", "GenerateCodeFromTests")  # 修复后重新生成代码并运行测试
+graph.add_edge("FixCode", "GenerateBusinessCode")  # 修复后重新生成业务代码并运行测试
 
 # 执行 LangGraph
 def run_langgraph(user_story, acceptance_criteria, config_file):
