@@ -5,11 +5,11 @@ import requests
 import json
 from langgraph import Graph, Node
 
-# Qwen 2.5 Max API 配置
+# Qwen API 配置
 QWEN_API_URL = "https://api.qwen.com/v1/chat"  # 替换为实际 API 地址
 QWEN_API_KEY = os.getenv("QWEN_API_KEY", "your_api_key_here")  # 使用环境变量存储密钥
 
-# 调用 Qwen 2.5 Max API
+# 调用 Qwen API
 def call_qwen(prompt):
     headers = {
         "Authorization": f"Bearer {QWEN_API_KEY}",
@@ -140,10 +140,18 @@ graph.add_node("StartOrUpdateTestEnvironment", start_or_update_test_environment)
 def analyze_existing_features(state):
     compose_directory = state["compose_directory"]
     analysis_file = os.path.join(compose_directory, "feature_analysis.json")
-    feature_analysis = load_yaml(analysis_file) if os.path.exists(analysis_file) else {}
+    
+    # 加载已有的功能分析结果（如果存在）
+    if os.path.exists(analysis_file):
+        with open(analysis_file, "r") as file:
+            feature_analysis = json.load(file)
+    else:
+        feature_analysis = {}
 
+    # 调用 LLM 分析现有功能
     prompt = f"""
-You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the existing features of the system.
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow.
+Your task is to analyze the existing features of the system.
 Current Feature Analysis: {feature_analysis}
 Instructions:
 - Identify all models in the system.
@@ -153,6 +161,7 @@ Instructions:
   - Business Rules: Describe any constraints or validation rules (e.g., price must be positive).
   - Business Logic: Explain the functionality (e.g., sorting products by price).
 - Organize the analysis result by model and include business rules and logic.
+Output:
 - Return the updated feature analysis as a dictionary with the following structure:
   {{
     "models": {{
@@ -166,7 +175,10 @@ Instructions:
   }}
 """
     result = call_qwen(prompt)
-    write_file(analysis_file, json.dumps(result, indent=4))
+    
+    # 保存更新后的功能分析结果
+    with open(analysis_file, "w") as file:
+        json.dump(result, file, indent=4)
     return {"feature_analysis": result["models"]}
 
 graph.add_node("AnalyzeExistingFeatures", analyze_existing_features)
@@ -185,6 +197,7 @@ graph.add_node("JoinEnvironmentPreparation", join_environment_preparation)
 def parse_requirements(state):
     user_story = state["user_story"]
     acceptance_criteria = state["acceptance_criteria"]
+    module_name = state["module_name"]  # 新增字段
     feature_analysis = state["feature_analysis"]
 
     relevant_analysis = {
@@ -193,28 +206,22 @@ def parse_requirements(state):
     }
 
     prompt = f"""
-You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the user story and acceptance criteria.
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow.
+Your task is to analyze the user story and acceptance criteria.
 ### User Story:
 {user_story}
 ### Acceptance Criteria:
 {acceptance_criteria}
 ### Relevant Feature Analysis:
 {relevant_analysis}
-### Instructions:
-#### Step 1: Analyze the User Story
-- Identify the key components required to implement the user story.
+Instructions:
 - Extract the following information:
-  - Models: List all models (e.g., Product, Order) and their fields (e.g., name, price, image).
+  - Models: List all models and their fields.
   - Views: Describe the UI components (e.g., form view, tree view).
   - Business Rules: Include any constraints or validation rules.
-  - Business Logic: Explain the functionality (e.g., sorting products by price).
-#### Step 2: Convert Acceptance Criteria into BDD Test Cases
-- For each acceptance criterion, generate a BDD test case using Gherkin syntax.
-- Ensure each test case includes:
-  - Feature: A clear description of the feature.
-  - Scenario: Steps to reproduce the scenario.
-  - Expected Results.
-#### Step 3: Generate Output
+  - Business Logic: Explain the functionality.
+- Convert acceptance criteria into BDD test cases using Gherkin syntax.
+Output:
 - Return the extracted requirements and BDD test cases as a dictionary with the following structure:
   {{
     "requirements": {{
@@ -232,7 +239,8 @@ You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Y
     result = call_qwen(prompt)
     return {
         "requirements": result["requirements"],
-        "bdd_test_cases": result["bdd_test_cases"]
+        "bdd_test_cases": result["bdd_test_cases"],
+        "module_name": module_name
     }
 
 graph.add_node("ParseRequirements", parse_requirements)
@@ -241,9 +249,11 @@ graph.add_node("ParseRequirements", parse_requirements)
 def generate_test_code(state):
     bdd_test_cases = state["bdd_test_cases"]
     compose_directory = state["compose_directory"]
+    module_name = state["module_name"]
 
     prompt = f"""
-You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate test code based on the given BDD test cases.
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow.
+Your task is to generate Python test code based on the given BDD test cases.
 BDD Test Cases:
 {bdd_test_cases}
 Instructions:
@@ -253,12 +263,11 @@ Output:
 - Return the generated test code as a dictionary with filenames as keys and code as values.
 """
     result = call_qwen(prompt)
-    tests_dir = os.path.join(compose_directory, "tests")
+    tests_dir = os.path.join(compose_directory, "tests", module_name)  # 使用 module 名称作为子目录
     os.makedirs(tests_dir, exist_ok=True)
     for filename, content in result.items():
         write_file(os.path.join(tests_dir, filename), content)
-    state["module_name"] = "your_module_name"  # 替换为实际模块名称
-    return {"test_code_generated": True}
+    return {"test_code_generated": True, "module_name": module_name}
 
 graph.add_node("GenerateTestCode", generate_test_code)
 
@@ -266,9 +275,11 @@ graph.add_node("GenerateTestCode", generate_test_code)
 def generate_business_code(state):
     requirements = state["requirements"]
     compose_directory = state["compose_directory"]
+    module_name = state["module_name"]
 
     prompt = f"""
-You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate business code based on the given requirements.
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow.
+Your task is to generate business code based on the given requirements.
 Requirements:
 - Models: {requirements["models"]}
 - Views: {requirements["views"]}
@@ -283,12 +294,11 @@ Output:
 - Return the generated business code as a dictionary with filenames as keys and code as values.
 """
     result = call_qwen(prompt)
-    addons_dir = os.path.join(compose_directory, "addons")
+    addons_dir = os.path.join(compose_directory, "addons", module_name)  # 使用 module 名称作为子目录
     os.makedirs(addons_dir, exist_ok=True)
     for filename, content in result.items():
         write_file(os.path.join(addons_dir, filename), content)
-    state["module_name"] = "your_module_name"  # 替换为实际模块名称
-    return {"business_code_generated": True}
+    return {"business_code_generated": True, "module_name": module_name}
 
 graph.add_node("GenerateBusinessCode", generate_business_code)
 
@@ -330,17 +340,25 @@ graph.add_node("RunTests", run_tests)
 # Step 10: 修复代码
 def fix_code(state):
     error_log = state["test_results"]["error"]
+    module_name = state["module_name"]
 
     prompt = f"""
-You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the error log and suggest fixes.
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow.
+Your task is to analyze the error log and suggest fixes.
 Error Log: {error_log}
-Step 1: Reasoning - Identify the root cause of the error.
-Step 2: Action - Suggest a fix for the issue.
-Step 3: Reasoning - Validate the fix against the original requirements.
-Step 4: Action - Apply the fix and update the code.
+Instructions:
+- Identify the root cause of the error.
+- Suggest a fix for the issue.
+- Validate the fix against the original requirements.
+- Apply the fix and update the code.
+Output:
+- Return the fixed code as a dictionary with filenames as keys and code as values.
 """
     fixed_code = call_qwen(prompt)
-    return {"fixed_code": fixed_code}
+    addons_dir = os.path.join(state["compose_directory"], "addons", module_name)
+    for filename, content in fixed_code.items():
+        write_file(os.path.join(addons_dir, filename), content)
+    return {"fixed_code": True, "module_name": module_name}
 
 graph.add_node("FixCode", fix_code)
 
@@ -378,11 +396,12 @@ graph.add_conditional_edge(
 graph.add_edge("FixCode", "GenerateBusinessCode")
 
 # 执行 LangGraph
-def run_langgraph(user_story, acceptance_criteria, config_file):
+def run_langgraph(user_story, acceptance_criteria, module_name, config_file):
     initial_state = {
         "config_file": config_file,
         "user_story": user_story,
-        "acceptance_criteria": acceptance_criteria
+        "acceptance_criteria": acceptance_criteria,
+        "module_name": module_name
     }
     return graph.run(initial_state)
 
@@ -392,11 +411,13 @@ def batch_process(stories_and_criteria, config_file):
     for item in stories_and_criteria:
         user_story = item.get("user_story")
         acceptance_criteria = item.get("acceptance_criteria")
+        module_name = item.get("module")  # 获取模块名称
         print(f"Processing user story: {user_story}")
-        result = run_langgraph(user_story, acceptance_criteria, config_file)
+        result = run_langgraph(user_story, acceptance_criteria, module_name, config_file)
         results.append({
             "user_story": user_story,
             "acceptance_criteria": acceptance_criteria,
+            "module_name": module_name,
             "result": result
         })
     return results
@@ -410,14 +431,16 @@ if __name__ == "__main__":
             "acceptance_criteria": [
                 "The product list should display name, price, and image.",
                 "The product list should be sortable by price."
-            ]
+            ],
+            "module": "product_list_module"  # 模块名称
         },
         {
             "user_story": "As a user, I want to add products to my cart.",
             "acceptance_criteria": [
                 "The user can select a product and add it to the cart.",
                 "The cart should display the total price."
-            ]
+            ],
+            "module": "shopping_cart_module"  # 模块名称
         }
     ]
     config_file = "./config.yaml"
