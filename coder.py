@@ -7,7 +7,7 @@ from langgraph import Graph, Node
 
 # Qwen 2.5 Max API 配置
 QWEN_API_URL = "https://api.qwen.com/v1/chat"  # 替换为实际 API 地址
-QWEN_API_KEY = "your_api_key_here"  # 替换为你的 API 密钥
+QWEN_API_KEY = os.getenv("QWEN_API_KEY", "your_api_key_here")  # 使用环境变量存储密钥
 
 # 调用 Qwen 2.5 Max API
 def call_qwen(prompt):
@@ -19,11 +19,28 @@ def call_qwen(prompt):
         "prompt": prompt,
         "max_tokens": 500
     }
-    response = requests.post(QWEN_API_URL, headers=headers, json=data)
-    if response.status_code == 200:
+    try:
+        response = requests.post(QWEN_API_URL, headers=headers, json=data)
+        response.raise_for_status()  # 检查 HTTP 错误
         return response.json()["response"]
-    else:
-        raise Exception(f"Error calling Qwen API: {response.text}")
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Error calling Qwen API: {str(e)}")
+
+# 辅助函数：安全加载 YAML 文件
+def load_yaml(file_path):
+    try:
+        with open(file_path, "r") as file:
+            return yaml.safe_load(file)
+    except Exception as e:
+        raise Exception(f"Error loading YAML file: {str(e)}")
+
+# 辅助函数：写入文件
+def write_file(file_path, content):
+    try:
+        with open(file_path, "w") as file:
+            file.write(content)
+    except Exception as e:
+        raise Exception(f"Error writing to file: {str(e)}")
 
 # 定义 LangGraph
 graph = Graph()
@@ -31,20 +48,16 @@ graph = Graph()
 # Step 1: 解析环境配置模块
 def parse_environment_config(state):
     config_file = state["config_file"]  # 假设用户提供了 YAML 配置文件路径
-
-    # 读取并解析 YAML 文件
-    with open(config_file, "r") as file:
-        config = yaml.safe_load(file)
-
-    # 提取关键配置
+    config = load_yaml(config_file)
     odoo_version = config.get("odoo_version", "16.0")
     base_modules = config.get("base_modules", [])
     compose_dir = config.get("compose_directory", "./test_env")
-
+    test_database_name = config.get("test_database_name", "test_db")  # 从配置中读取测试数据库名称
     return {
         "odoo_version": odoo_version,
         "base_modules": base_modules,
-        "compose_directory": compose_dir
+        "compose_directory": compose_dir,
+        "test_database_name": test_database_name
     }
 
 graph.add_node("ParseEnvironmentConfig", parse_environment_config)
@@ -54,32 +67,19 @@ def generate_or_update_docker_compose_files(state):
     odoo_version = state["odoo_version"]
     base_modules = state["base_modules"]
     compose_dir = state["compose_directory"]
-
-    # 创建目标目录
+    compose_file_path = os.path.join(compose_dir, "docker-compose.yml")
     os.makedirs(compose_dir, exist_ok=True)
 
-    compose_file_path = os.path.join(compose_dir, "docker-compose.yml")
-
-    # 检查是否已存在 docker-compose.yml 文件
     if os.path.exists(compose_file_path):
-        with open(compose_file_path, "r") as file:
-            existing_compose = yaml.safe_load(file)
-        
-        # 提取当前 Odoo 版本
+        existing_compose = load_yaml(compose_file_path)
         current_odoo_version = existing_compose["services"]["web"]["image"].split(":")[1]
-
-        # 如果版本不同，则更新版本
         if current_odoo_version != odoo_version:
             print(f"Updating Odoo version from {current_odoo_version} to {odoo_version}")
             existing_compose["services"]["web"]["image"] = f"odoo:{odoo_version}"
-            
-            # 写入更新后的 docker-compose.yml 文件
-            with open(compose_file_path, "w") as file:
-                yaml.dump(existing_compose, file, default_flow_style=False)
+            write_file(compose_file_path, yaml.dump(existing_compose, default_flow_style=False))
         else:
             print(f"Using existing Odoo version: {odoo_version}")
     else:
-        # 如果文件不存在，则生成新的 docker-compose.yml 文件
         docker_compose_content = f"""
 version: '3.8'
 services:
@@ -106,21 +106,13 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
 """
+        write_file(compose_file_path, docker_compose_content)
 
-        # 写入文件
-        with open(compose_file_path, "w") as file:
-            file.write(docker_compose_content)
-
-    # 生成 .env 文件内容
-    env_content = """
+    env_content = f"""
 ODOO_VERSION={odoo_version}
-BASE_MODULES={base_modules}
-""".format(odoo_version=odoo_version, base_modules=",".join(base_modules))
-
-    # 写入 .env 文件
-    with open(os.path.join(compose_dir, ".env"), "w") as file:
-        file.write(env_content)
-
+BASE_MODULES={",".join(base_modules)}
+"""
+    write_file(os.path.join(compose_dir, ".env"), env_content)
     return {"compose_directory": compose_dir}
 
 graph.add_node("GenerateOrUpdateDockerComposeFiles", generate_or_update_docker_compose_files)
@@ -129,85 +121,58 @@ graph.add_node("GenerateOrUpdateDockerComposeFiles", generate_or_update_docker_c
 def start_or_update_test_environment(state):
     compose_dir = state["compose_directory"]
     compose_file_path = os.path.join(compose_dir, "docker-compose.yml")
-
-    # 检查是否需要更新容器
-    if os.path.exists(compose_file_path):
-        print("Pulling latest images and updating containers...")
-        try:
-            # 拉取最新镜像
+    try:
+        if os.path.exists(compose_file_path):
+            print("Pulling latest images and updating containers...")
             subprocess.run(["docker-compose", "pull"], cwd=compose_dir, check=True)
-            # 更新容器
             subprocess.run(["docker-compose", "up", "-d"], cwd=compose_dir, check=True)
             return {"environment_status": "updated"}
-        except subprocess.CalledProcessError as e:
-            return {"environment_status": "failed", "error": str(e)}
-    else:
-        print("Starting new test environment...")
-        try:
+        else:
+            print("Starting new test environment...")
             subprocess.run(["docker-compose", "up", "-d"], cwd=compose_dir, check=True)
             return {"environment_status": "started"}
-        except subprocess.CalledProcessError as e:
-            return {"environment_status": "failed", "error": str(e)}
+    except subprocess.CalledProcessError as e:
+        return {"environment_status": "failed", "error": str(e)}
 
 graph.add_node("StartOrUpdateTestEnvironment", start_or_update_test_environment)
 
 # Step 4: 分析现有功能并保存分析结果
 def analyze_existing_features(state):
     compose_directory = state["compose_directory"]
-
-    # 加载已有的功能分析结果（如果存在）
     analysis_file = os.path.join(compose_directory, "feature_analysis.json")
-    if os.path.exists(analysis_file):
-        with open(analysis_file, "r") as file:
-            feature_analysis = json.load(file)
-    else:
-        feature_analysis = {}
+    feature_analysis = load_yaml(analysis_file) if os.path.exists(analysis_file) else {}
 
-    # 调用 LLM 分析现有功能
     prompt = f"""
-    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the existing features of the system.
-
-    Current Feature Analysis: {feature_analysis}
-
-    Instructions:
-    - Identify all models in the system.
-    - For each model, extract the following information:
-      - Fields: List all fields (e.g., name, price, image).
-      - Related Models: List related models (e.g., Many2one, One2many relationships).
-      - Business Rules: Describe any constraints or validation rules (e.g., price must be positive).
-      - Business Logic: Explain the functionality (e.g., sorting products by price).
-    - Organize the analysis result by model and include business rules and logic.
-    - Return the updated feature analysis as a dictionary with the following structure:
-      {{
-        "models": {{
-          "model_name_1": {{
-            "fields": [list of fields],
-            "related_models": [list of related models],
-            "business_rules": [list of business rules],
-            "business_logic": [description of business logic]
-          }},
-          "model_name_2": {{
-            "fields": [list of fields],
-            "related_models": [list of related models],
-            "business_rules": [list of business rules],
-            "business_logic": [description of business logic]
-          }}
-        }}
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the existing features of the system.
+Current Feature Analysis: {feature_analysis}
+Instructions:
+- Identify all models in the system.
+- For each model, extract the following information:
+  - Fields: List all fields (e.g., name, price, image).
+  - Related Models: List related models (e.g., Many2one, One2many relationships).
+  - Business Rules: Describe any constraints or validation rules (e.g., price must be positive).
+  - Business Logic: Explain the functionality (e.g., sorting products by price).
+- Organize the analysis result by model and include business rules and logic.
+- Return the updated feature analysis as a dictionary with the following structure:
+  {{
+    "models": {{
+      "model_name_1": {{
+        "fields": [list of fields],
+        "related_models": [list of related models],
+        "business_rules": [list of business rules],
+        "business_logic": [description of business logic]
       }}
-    """
+    }}
+  }}
+"""
     result = call_qwen(prompt)
-
-    # 保存更新后的功能分析结果
-    with open(analysis_file, "w") as file:
-        json.dump(result, file, indent=4)
-
+    write_file(analysis_file, json.dumps(result, indent=4))
     return {"feature_analysis": result["models"]}
 
 graph.add_node("AnalyzeExistingFeatures", analyze_existing_features)
 
 # Step 5: 汇聚环境准备结果
 def join_environment_preparation(state):
-    # 汇聚所有环境准备的结果
     return {
         "compose_directory": state["GenerateOrUpdateDockerComposeFiles"]["compose_directory"],
         "environment_status": state["StartOrUpdateTestEnvironment"]["environment_status"],
@@ -222,60 +187,48 @@ def parse_requirements(state):
     acceptance_criteria = state["acceptance_criteria"]
     feature_analysis = state["feature_analysis"]
 
-    # 根据新需求筛选相关的模型、业务规则和业务逻辑
-    relevant_analysis = {}
-    for model, details in feature_analysis.items():
-        # 如果模型名称出现在用户故事中，则认为该模型与需求相关
-        if model.lower() in user_story.lower():
-            relevant_analysis[model] = details
+    relevant_analysis = {
+        model: details for model, details in feature_analysis.items()
+        if model.lower() in user_story.lower()
+    }
 
-    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词解析需求
     prompt = f"""
-    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the user story and acceptance criteria.
-
-    ### User Story:
-    {user_story}
-
-    ### Acceptance Criteria:
-    {acceptance_criteria}
-
-    ### Relevant Feature Analysis:
-    {relevant_analysis}
-
-    ### Instructions:
-
-    #### Step 1: Analyze the User Story
-    - Identify the key components required to implement the user story.
-    - Extract the following information:
-      - Models: List all models (e.g., Product, Order) and their fields (e.g., name, price, image).
-      - Views: Describe the UI components (e.g., form view, tree view).
-      - Business Rules: Include any constraints or validation rules.
-      - Business Logic: Explain the functionality (e.g., sorting products by price).
-
-    #### Step 2: Convert Acceptance Criteria into BDD Test Cases
-    - For each acceptance criterion, generate a BDD test case using Gherkin syntax.
-    - Ensure each test case includes:
-      - Feature: A clear description of the feature.
-      - Scenario: Steps to reproduce the scenario.
-      - Expected Results.
-
-    #### Step 3: Generate Output
-    - Return the extracted requirements and BDD test cases as a dictionary with the following structure:
-      {{
-        "requirements": {{
-          "models": [list of models and fields],
-          "views": [list of views and their descriptions],
-          "business_rules": [list of business rules],
-          "business_logic": [description of business logic]
-        }},
-        "bdd_test_cases": {{
-          "test_case_1.feature": "Gherkin syntax for test case 1",
-          "test_case_2.feature": "Gherkin syntax for test case 2"
-        }}
-      }}
-    """
-
-    # 调用 Qwen 2.5 Max 生成结果
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the user story and acceptance criteria.
+### User Story:
+{user_story}
+### Acceptance Criteria:
+{acceptance_criteria}
+### Relevant Feature Analysis:
+{relevant_analysis}
+### Instructions:
+#### Step 1: Analyze the User Story
+- Identify the key components required to implement the user story.
+- Extract the following information:
+  - Models: List all models (e.g., Product, Order) and their fields (e.g., name, price, image).
+  - Views: Describe the UI components (e.g., form view, tree view).
+  - Business Rules: Include any constraints or validation rules.
+  - Business Logic: Explain the functionality (e.g., sorting products by price).
+#### Step 2: Convert Acceptance Criteria into BDD Test Cases
+- For each acceptance criterion, generate a BDD test case using Gherkin syntax.
+- Ensure each test case includes:
+  - Feature: A clear description of the feature.
+  - Scenario: Steps to reproduce the scenario.
+  - Expected Results.
+#### Step 3: Generate Output
+- Return the extracted requirements and BDD test cases as a dictionary with the following structure:
+  {{
+    "requirements": {{
+      "models": [list of models and fields],
+      "views": [list of views and their descriptions],
+      "business_rules": [list of business rules],
+      "business_logic": [description of business logic]
+    }},
+    "bdd_test_cases": {{
+      "test_case_1.feature": "Gherkin syntax for test case 1",
+      "test_case_2.feature": "Gherkin syntax for test case 2"
+    }}
+  }}
+"""
     result = call_qwen(prompt)
     return {
         "requirements": result["requirements"],
@@ -289,31 +242,22 @@ def generate_test_code(state):
     bdd_test_cases = state["bdd_test_cases"]
     compose_directory = state["compose_directory"]
 
-    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词生成测试代码
     prompt = f"""
-    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate test code based on the given BDD test cases.
-
-    BDD Test Cases:
-    {bdd_test_cases}
-
-    Instructions:
-    - Write Python test code using the Odoo testing framework.
-    - Ensure the test code covers all scenarios described in the BDD test cases.
-
-    Output:
-    - Return the generated test code as a dictionary with filenames as keys and code as values.
-    """
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate test code based on the given BDD test cases.
+BDD Test Cases:
+{bdd_test_cases}
+Instructions:
+- Write Python test code using the Odoo testing framework.
+- Ensure the test code covers all scenarios described in the BDD test cases.
+Output:
+- Return the generated test code as a dictionary with filenames as keys and code as values.
+"""
     result = call_qwen(prompt)
-
-    # 将生成的测试代码保存到 tests 目录
     tests_dir = os.path.join(compose_directory, "tests")
     os.makedirs(tests_dir, exist_ok=True)
-
     for filename, content in result.items():
-        file_path = os.path.join(tests_dir, filename)
-        with open(file_path, "w") as file:
-            file.write(content)
-
+        write_file(os.path.join(tests_dir, filename), content)
+    state["module_name"] = "your_module_name"  # 替换为实际模块名称
     return {"test_code_generated": True}
 
 graph.add_node("GenerateTestCode", generate_test_code)
@@ -323,36 +267,27 @@ def generate_business_code(state):
     requirements = state["requirements"]
     compose_directory = state["compose_directory"]
 
-    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词生成业务代码
     prompt = f"""
-    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate business code based on the given requirements.
-
-    Requirements:
-    - Models: {requirements["models"]}
-    - Views: {requirements["views"]}
-    - Business Rules: {requirements["business_rules"]}
-    - Business Logic: {requirements["business_logic"]}
-
-    Instructions:
-    - Generate Python code for models.
-    - Design XML views.
-    - Implement business rules and logic.
-    - Ensure the code satisfies the requirements.
-
-    Output:
-    - Return the generated business code as a dictionary with filenames as keys and code as values.
-    """
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to generate business code based on the given requirements.
+Requirements:
+- Models: {requirements["models"]}
+- Views: {requirements["views"]}
+- Business Rules: {requirements["business_rules"]}
+- Business Logic: {requirements["business_logic"]}
+Instructions:
+- Generate Python code for models.
+- Design XML views.
+- Implement business rules and logic.
+- Ensure the code satisfies the requirements.
+Output:
+- Return the generated business code as a dictionary with filenames as keys and code as values.
+"""
     result = call_qwen(prompt)
-
-    # 将生成的业务代码保存到 addons 目录
     addons_dir = os.path.join(compose_directory, "addons")
     os.makedirs(addons_dir, exist_ok=True)
-
     for filename, content in result.items():
-        file_path = os.path.join(addons_dir, filename)
-        with open(file_path, "w") as file:
-            file.write(content)
-
+        write_file(os.path.join(addons_dir, filename), content)
+    state["module_name"] = "your_module_name"  # 替换为实际模块名称
     return {"business_code_generated": True}
 
 graph.add_node("GenerateBusinessCode", generate_business_code)
@@ -360,12 +295,25 @@ graph.add_node("GenerateBusinessCode", generate_business_code)
 # Step 9: 运行测试代码
 def run_tests(state):
     compose_directory = state["compose_directory"]
+    test_database_name = state.get("test_database_name")
+    module_name = state.get("module_name")
+    if not test_database_name or not module_name:
+        return {"test_results": "failed", "error": "Missing test_database_name or module_name in state."}
 
     try:
-        print("Running tests...")
-        # 进入 Docker Compose 环境并运行测试
+        print(f"Installing module '{module_name}' and running tests on database '{test_database_name}'...")
+        install_command = [
+            "docker-compose", "exec", "web",
+            "odoo-bin", "-d", test_database_name, "-i", module_name
+        ]
+        subprocess.run(install_command, cwd=compose_directory, check=True)
+
+        test_command = [
+            "docker-compose", "exec", "web",
+            "odoo-bin", "-d", test_database_name, "--test-enable"
+        ]
         result = subprocess.run(
-            ["docker-compose", "exec", "web", "pytest", "/mnt/tests"],
+            test_command,
             cwd=compose_directory,
             capture_output=True,
             text=True
@@ -383,18 +331,14 @@ graph.add_node("RunTests", run_tests)
 def fix_code(state):
     error_log = state["test_results"]["error"]
 
-    # 使用 Odoo Framework, Odoo App, and Business Flow 提示词修复代码
     prompt = f"""
-    You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the error log and suggest fixes.
-
-    Error Log: {error_log}
-
-    Step 1: Reasoning - Identify the root cause of the error.
-    Step 2: Action - Suggest a fix for the issue.
-    Step 3: Reasoning - Validate the fix against the original requirements.
-    Step 4: Action - Apply the fix and update the code.
-    """
-    # 调用 Qwen 2.5 Max 生成修复后的代码
+You are an AI agent following the Odoo Framework, Odoo App, and Business Flow. Your task is to analyze the error log and suggest fixes.
+Error Log: {error_log}
+Step 1: Reasoning - Identify the root cause of the error.
+Step 2: Action - Suggest a fix for the issue.
+Step 3: Reasoning - Validate the fix against the original requirements.
+Step 4: Action - Apply the fix and update the code.
+"""
     fixed_code = call_qwen(prompt)
     return {"fixed_code": fixed_code}
 
@@ -403,7 +347,6 @@ graph.add_node("FixCode", fix_code)
 # Step 11: 重启容器以加载新代码
 def restart_containers(state):
     compose_directory = state["compose_directory"]
-
     try:
         print("Restarting containers to apply new code...")
         subprocess.run(["docker-compose", "restart"], cwd=compose_directory, check=True)
@@ -418,24 +361,21 @@ graph.add_edge("ParseEnvironmentConfig", "GenerateOrUpdateDockerComposeFiles")
 graph.add_edge("ParseEnvironmentConfig", "StartOrUpdateTestEnvironment")
 graph.add_edge("ParseEnvironmentConfig", "AnalyzeExistingFeatures")
 
-# 汇聚环境准备结果
 graph.add_edge("GenerateOrUpdateDockerComposeFiles", "JoinEnvironmentPreparation")
 graph.add_edge("StartOrUpdateTestEnvironment", "JoinEnvironmentPreparation")
 graph.add_edge("AnalyzeExistingFeatures", "JoinEnvironmentPreparation")
 
-# 继续后续流程
 graph.add_edge("JoinEnvironmentPreparation", "ParseRequirements")
 graph.add_edge("ParseRequirements", "GenerateTestCode")
 graph.add_edge("ParseRequirements", "GenerateBusinessCode")
 graph.add_edge("GenerateTestCode", "RunTests")
 graph.add_edge("GenerateBusinessCode", "RunTests")
 
-# 如果测试失败，进入修复节点
 graph.add_conditional_edge(
     "RunTests",
     lambda state: "FixCode" if "error" in state["test_results"] else "RestartContainers"
 )
-graph.add_edge("FixCode", "GenerateBusinessCode")  # 修复后重新生成业务代码并运行测试
+graph.add_edge("FixCode", "GenerateBusinessCode")
 
 # 执行 LangGraph
 def run_langgraph(user_story, acceptance_criteria, config_file):
@@ -481,10 +421,9 @@ if __name__ == "__main__":
         }
     ]
     config_file = "./config.yaml"
-
     # 批量处理
     results = batch_process(stories_and_criteria, config_file)
     print("Batch Processing Results:")
     for idx, result in enumerate(results):
-        print(f"\nResult {idx + 1}:")
+        print(f"Result {idx + 1}:")
         print(result)
